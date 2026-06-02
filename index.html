@@ -10,35 +10,17 @@
 <title>Watchlist</title>
 
 <script>
-const manifest = {
-  name:"Watchlist",short_name:"Watchlist",
-  description:"Mijn persoonlijke film & serie watchlist",
-  start_url:"./",display:"standalone",
-  background_color:"#0d0d0f",theme_color:"#0d0d0f",
-  orientation:"portrait-primary",
-  icons:[
-    {src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%230d0d0f'/><text y='130' x='96' text-anchor='middle' font-size='110' font-family='serif'>🎬</text></svg>",sizes:"192x192",type:"image/svg+xml"},
-    {src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230d0d0f'/><text y='360' x='256' text-anchor='middle' font-size='300' font-family='serif'>🎬</text></svg>",sizes:"512x512",type:"image/svg+xml"}
-  ]
-};
-const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
-const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(blob);
-document.head.appendChild(l);
+const manifest={name:"Watchlist",short_name:"Watchlist",description:"Mijn persoonlijke film & serie watchlist",start_url:"./",display:"standalone",background_color:"#0d0d0f",theme_color:"#0d0d0f",orientation:"portrait-primary",icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%230d0d0f'/><text y='130' x='96' text-anchor='middle' font-size='110' font-family='serif'>🎬</text></svg>",sizes:"192x192",type:"image/svg+xml"}]};
+const b=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(b);document.head.appendChild(l);
 </script>
-
 <script>
 window.addEventListener('DOMContentLoaded',()=>{
   const c=document.createElement('canvas');c.width=c.height=180;
   const ctx=c.getContext('2d'),r=40;
-  ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(180-r,0);ctx.quadraticCurveTo(180,0,180,r);
-  ctx.lineTo(180,180-r);ctx.quadraticCurveTo(180,180,180-r,180);
-  ctx.lineTo(r,180);ctx.quadraticCurveTo(0,180,0,180-r);
-  ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
-  ctx.fillStyle='#0d0d0f';ctx.fill();
-  ctx.font='110px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('🎬',90,95);
-  const l=document.createElement('link');l.rel='apple-touch-icon';l.href=c.toDataURL();
-  document.head.appendChild(l);
+  ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(180-r,0);ctx.quadraticCurveTo(180,0,180,r);ctx.lineTo(180,180-r);ctx.quadraticCurveTo(180,180,180-r,180);ctx.lineTo(r,180);ctx.quadraticCurveTo(0,180,0,180-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
+  ctx.fillStyle='#0d0d0f';ctx.fill();ctx.font='110px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🎬',90,95);
+  const l=document.createElement('link');l.rel='apple-touch-icon';l.href=c.toDataURL();document.head.appendChild(l);
 });
 </script>
 
@@ -70,8 +52,8 @@ button{cursor:pointer}
 .view{display:none;flex-direction:column;flex:1;overflow:hidden}
 .view.active{display:flex}
 
-/* ── ZOEK TAB ── */
-.search-box{padding:14px 16px 10px;flex-shrink:0}
+/* ZOEK TAB */
+.search-box{padding:14px 16px 10px;flex-shrink:0;position:relative}
 .search-inner{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:11px 14px;transition:border-color .2s}
 .search-inner:focus-within{border-color:var(--accent)}
 .search-inner input{flex:1;font-size:15px;background:none;color:var(--text)}
@@ -80,22 +62,32 @@ button{cursor:pointer}
 #search-btn:active{transform:scale(.96)}
 #search-btn:disabled{opacity:.35}
 
-#preview-area{flex:1;overflow-y:auto;padding:0 16px 24px;-webkit-overflow-scrolling:touch}
+/* AUTOCOMPLETE */
+#suggestions{position:absolute;top:calc(100% - 6px);left:16px;right:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;overflow:hidden;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none}
+.suggestion-item{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--border)}
+.suggestion-item:last-child{border-bottom:none}
+.suggestion-item:hover,.suggestion-item.focused{background:var(--surface3)}
+.sug-poster{width:32px;height:47px;border-radius:5px;background:var(--surface3);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:16px}
+.sug-poster img{width:100%;height:100%;object-fit:cover;display:block}
+.sug-info{flex:1;min-width:0}
+.sug-title{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.sug-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.sug-type{font-size:11px;padding:1px 7px;border-radius:99px;border:1px solid var(--border2);color:var(--muted2)}
+.sug-loading,.sug-none{padding:14px;text-align:center;color:var(--muted);font-size:13px}
 
+#preview-area{flex:1;overflow-y:auto;padding:0 16px 24px;-webkit-overflow-scrolling:touch}
 .hint-card{padding:20px 0;color:var(--muted);font-size:14px;line-height:1.8}
 .hint-card strong{color:var(--muted2)}
 .hint-card kbd{background:var(--surface2);border:1px solid var(--border2);padding:1px 8px;border-radius:6px;font-family:inherit;font-size:12px;color:var(--text)}
 .hint-bullets{margin-top:10px;display:flex;flex-direction:column;gap:4px}
 .hint-bullets span::before{content:'· ';color:var(--accent)}
-
 .loading-wrap{padding:28px 0;display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--muted);font-size:14px}
 .spinner{width:28px;height:28px;border:2.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* RESULT CARD */
-.result-card{margin-top:4px;background:var(--surface);border:1px solid var(--border2);border-radius:16px;overflow:hidden;animation:fadeUp .25s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
+/* RESULT / EDIT CARD */
+.result-card{margin-top:4px;background:var(--surface);border:1px solid var(--border2);border-radius:16px;overflow:hidden;animation:fadeUp .25s ease}
 .rc-header{padding:16px 16px 12px;display:flex;gap:14px;align-items:flex-start;border-bottom:1px solid var(--border)}
 .rc-poster{width:68px;height:100px;border-radius:8px;background:var(--surface2);flex-shrink:0;border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:28px}
 .rc-poster img{width:100%;height:100%;object-fit:cover;display:block}
@@ -106,7 +98,6 @@ button{cursor:pointer}
 .type-pills{display:flex;gap:6px}
 .type-pill{font-size:12px;padding:4px 12px;border-radius:99px;border:1px solid var(--border2);color:var(--muted);cursor:pointer;transition:all .15s}
 .type-pill.active{background:var(--accent);color:#1a1400;border-color:var(--accent);font-weight:500}
-
 .rc-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
 .field-label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;font-weight:500}
 .field-input{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 13px;width:100%;color:var(--text);font-size:14px;transition:border-color .15s}
@@ -130,24 +121,21 @@ button{cursor:pointer}
 .star{font-size:24px;color:var(--border2);cursor:pointer;transition:color .08s;padding:2px;line-height:1}
 .star.lit{color:var(--accent)}
 .score-label{font-size:15px;font-weight:500;color:var(--accent);min-width:36px}
-
 .save-btn{background:var(--accent);color:#1a1400;border-radius:12px;padding:14px;font-weight:500;font-size:15px;width:100%;transition:background .15s,transform .1s;margin-top:4px}
 .save-btn:active{transform:scale(.98);background:var(--accent2)}
+.save-btn.edit-mode{background:var(--surface3);color:var(--accent);border:1px solid var(--accent)}
 .cancel-btn{text-align:center;font-size:13px;color:var(--muted);padding:10px;cursor:pointer}
 
-/* ── LIJST TAB ── */
+/* LIJST TAB */
 #view-list .list-filters{padding:10px 16px;display:flex;gap:8px;flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 #view-list .list-filters::-webkit-scrollbar{display:none}
 .filter-chip{background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:6px 14px;font-size:13px;color:var(--muted);white-space:nowrap;cursor:pointer;transition:all .15s;flex-shrink:0}
 .filter-chip.active{background:var(--surface3);border-color:var(--border2);color:var(--text)}
-
 .filter-selects{padding:0 16px 10px;display:flex;gap:8px;flex-shrink:0}
 .fsel-wrap{position:relative;flex:1}
 .fsel-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);pointer-events:none}
 .fsel-wrap select{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 28px 8px 12px;font-size:13px;color:var(--text);width:100%;cursor:pointer}
-
 #movie-list{flex:1;overflow-y:auto;padding:0 16px;padding-bottom:calc(16px + var(--safe-bottom));-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:10px}
-
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--muted);text-align:center;padding:20px}
 .empty-icon{font-size:48px;line-height:1}
 .empty-title{font-family:'Instrument Serif',serif;font-size:22px;color:var(--muted2)}
@@ -167,10 +155,25 @@ button{cursor:pointer}
 .mcard-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
 .mcard-imdb{background:#f5c518;color:#1a1400;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px}
 .mcard-score{font-size:13px;color:var(--accent);font-weight:500}
-.mcard-del{color:var(--muted);font-size:18px;padding:4px;opacity:.4;transition:opacity .15s;background:none;border:none;line-height:1}
+.mcard-actions{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.mcard-edit{color:var(--muted2);font-size:15px;padding:4px;opacity:.6;transition:opacity .15s;background:none;border:none;line-height:1}
+.mcard-edit:active{opacity:1;color:var(--accent)}
+.mcard-del{color:var(--muted);font-size:15px;padding:4px;opacity:.4;transition:opacity .15s;background:none;border:none;line-height:1}
 .mcard-del:active{opacity:1;color:var(--red)}
 
-/* ── STATS TAB ── */
+/* EDIT SHEET (bottom modal) */
+#edit-sheet{position:fixed;inset:0;z-index:200;display:none}
+#edit-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+#edit-panel{position:absolute;bottom:0;left:0;right:0;background:var(--surface);border-radius:20px 20px 0 0;padding:0 0 calc(16px + var(--safe-bottom));max-height:90dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,0,.67,0)}
+#edit-panel.open{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 16px}
+.sheet-title{font-family:'Instrument Serif',serif;font-size:20px;padding:0 20px 14px;border-bottom:1px solid var(--border)}
+.sheet-body{padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.sheet-save{background:var(--accent);color:#1a1400;border-radius:12px;padding:14px;font-weight:500;font-size:15px;width:100%;margin-top:4px}
+.sheet-save:active{background:var(--accent2)}
+.sheet-cancel{text-align:center;font-size:13px;color:var(--muted);padding:10px;cursor:pointer}
+
+/* STATS TAB */
 #view-stats{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;gap:14px;padding-bottom:calc(16px + var(--safe-bottom))}
 .stat-section{margin-bottom:20px}
 .stat-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;font-weight:500}
@@ -198,38 +201,31 @@ button{cursor:pointer}
 <div id="app">
 
   <nav id="tabbar">
-    <div class="tab active" onclick="showTab('search')" id="tab-search">
-      <span class="tab-icon">🔍</span>Zoeken
-    </div>
-    <div class="tab" onclick="showTab('list')" id="tab-list">
-      <span class="tab-icon">🎬</span>Lijst<span id="tab-badge" style="display:none">0</span>
-    </div>
-    <div class="tab" onclick="showTab('stats')" id="tab-stats">
-      <span class="tab-icon">📊</span>Stats
-    </div>
+    <div class="tab active" onclick="showTab('search')" id="tab-search"><span class="tab-icon">🔍</span>Zoeken</div>
+    <div class="tab" onclick="showTab('list')" id="tab-list"><span class="tab-icon">🎬</span>Lijst<span id="tab-badge" style="display:none">0</span></div>
+    <div class="tab" onclick="showTab('stats')" id="tab-stats"><span class="tab-icon">📊</span>Stats</div>
   </nav>
 
   <!-- ZOEKEN -->
   <div class="view active" id="view-search">
     <div class="search-box">
       <div class="search-inner">
-        <input id="title-input" type="text" placeholder="Titel… bv. Inception of The Bear"
-          onkeydown="if(event.key==='Enter'){this.blur();lookup()}"
+        <input id="title-input" type="text" placeholder="Begin te typen… bv. Ted"
+          oninput="onTyping()" onkeydown="onKeyDown(event)"
           autocomplete="off" autocorrect="off" spellcheck="false"/>
-        <button id="search-btn" onclick="lookup()">Zoek</button>
+        <button id="search-btn" onclick="lookup()" disabled>Zoek</button>
       </div>
+      <div id="suggestions"></div>
     </div>
     <div id="preview-area">
       <div class="hint-card">
-        <strong>Typ een film of serie</strong> en ik zoek automatisch op:
+        <strong>Begin gewoon te typen</strong> — na 2 letters verschijnen suggesties:
         <div class="hint-bullets">
-          <span>Officiële titel & poster</span>
-          <span>IMDB-score & genres</span>
-          <span>Duur of aantal seizoenen</span>
+          <span>Kies een suggestie uit de lijst</span>
+          <span>Of druk op Zoek voor het beste resultaat</span>
+          <span>Geef ook je score mee, bv. <kbd>Ted Lasso 9/10</kbd></span>
         </div>
-        <br>
-        Geef ook je score mee, bv. <kbd>The Bear 9/10</kbd><br>
-        <span style="font-size:12px;color:var(--muted);margin-top:6px;display:block">Streamingplatforms vink je zelf aan — deze wijzigen te vaak om automatisch op te zoeken.</span>
+        <br><span style="font-size:12px;color:var(--muted)">Gebruik bij voorkeur de Engelstalige titel.</span>
       </div>
     </div>
   </div>
@@ -242,19 +238,8 @@ button{cursor:pointer}
       <div class="filter-chip" data-type="Serie" onclick="setTypeFilter('Serie')">Series</div>
     </div>
     <div class="filter-selects">
-      <div class="fsel-wrap">
-        <select id="f-plat" onchange="renderList()">
-          <option value="">Alle platforms</option>
-        </select>
-      </div>
-      <div class="fsel-wrap">
-        <select id="f-sort" onchange="renderList()">
-          <option value="added">Nieuwste eerst</option>
-          <option value="score">Mijn score</option>
-          <option value="imdb">IMDB</option>
-          <option value="az">A–Z</option>
-        </select>
-      </div>
+      <div class="fsel-wrap"><select id="f-plat" onchange="renderList()"><option value="">Alle platforms</option></select></div>
+      <div class="fsel-wrap"><select id="f-sort" onchange="renderList()"><option value="added">Nieuwste eerst</option><option value="score">Mijn score</option><option value="imdb">IMDB</option><option value="az">A–Z</option></select></div>
     </div>
     <div id="movie-list"></div>
   </div>
@@ -282,137 +267,183 @@ button{cursor:pointer}
 
 </div>
 
+<!-- EDIT SHEET -->
+<div id="edit-sheet">
+  <div id="edit-backdrop" onclick="closeEdit()"></div>
+  <div id="edit-panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Wijzigen</div>
+    <div class="sheet-body">
+      <div><div class="field-label">Titel</div><input class="field-input" id="e-name"/></div>
+      <div class="field-row">
+        <div>
+          <div class="field-label">Type</div>
+          <div class="type-pills" style="margin-top:5px">
+            <div class="type-pill" id="e-type-film" onclick="setEditType('Film',this)">Film</div>
+            <div class="type-pill" id="e-type-serie" onclick="setEditType('Serie',this)">Serie</div>
+          </div>
+        </div>
+        <div><div class="field-label">Jaar</div><input class="field-input" id="e-year" placeholder="—"/></div>
+      </div>
+      <div><div class="field-label">Duur</div><input class="field-input" id="e-dur" placeholder="—"/></div>
+      <div><div class="field-label">Genres</div><input class="field-input" id="e-genres" placeholder="Drama, Thriller…"/></div>
+      <div><div class="field-label">IMDB-score</div><input class="field-input" id="e-imdb" placeholder="—" style="max-width:90px"/></div>
+      <div>
+        <div class="field-label">Mijn score (/10)</div>
+        <div class="stars-row"><div class="stars" id="e-stars"></div><div class="score-label" id="e-score-lbl">—</div></div>
+      </div>
+      <div>
+        <div class="field-label">Beschikbaar in 🇧🇪</div>
+        <div class="plat-grid" id="e-plat-grid"></div>
+      </div>
+      <button class="sheet-save" onclick="saveEdit()">Wijzigingen opslaan</button>
+      <div class="sheet-cancel" onclick="closeEdit()">Annuleer</div>
+    </div>
+  </div>
+</div>
+
 <script>
-// ─── CONFIG ─────────────────────────────────────────────
-const OMDB_KEY = 'cf7815be';
+const OMDB_KEY='cf7815be';
+const SK='watchlist_be_v5';
+let watchlist=[];
+try{watchlist=JSON.parse(localStorage.getItem(SK)||'[]');}catch(e){}
+function save(){try{localStorage.setItem(SK,JSON.stringify(watchlist));}catch(e){}}
 
-// ─── DATA ───────────────────────────────────────────────
-const SK = 'watchlist_be_v5';
-let watchlist = [];
-try { watchlist = JSON.parse(localStorage.getItem(SK)||'[]'); } catch(e){}
-function save(){ try{localStorage.setItem(SK,JSON.stringify(watchlist));}catch(e){} }
+const PLATFORMS=['Netflix','Prime Video','Disney+','HBO Max','Apple TV+','VRT Max','Streamz'];
+const PLAT_KEY={'Netflix':'netflix','Prime Video':'prime','Disney+':'disney','HBO Max':'hbo','Apple TV+':'apple','VRT Max':'vrt','Streamz':'streamz'};
+const PLAT_STYLE={'Netflix':'background:#e50914;color:#fff','Prime Video':'background:#1a98ff;color:#fff','Disney+':'background:#113ccf;color:#fff','HBO Max':'background:#6a35d3;color:#fff','Apple TV+':'background:#4a4a4a;color:#fff','VRT Max':'background:#00a86b;color:#fff','Streamz':'background:#e040fb;color:#fff'};
+const GENRE_MAP={'Action':'Actie','Adventure':'Avontuur','Animation':'Animatie','Biography':'Biografie','Comedy':'Komedie','Crime':'Misdaad','Documentary':'Documentaire','Drama':'Drama','Family':'Familie','Fantasy':'Fantasy','History':'Geschiedenis','Horror':'Horror','Music':'Muziek','Musical':'Musical','Mystery':'Mystery','Romance':'Romantiek','Sci-Fi':'Sci-Fi','Short':'Korte film','Sport':'Sport','Thriller':'Thriller','War':'Oorlog','Western':'Western'};
 
-// ─── PLATFORMS ──────────────────────────────────────────
-const PLATFORMS = ['Netflix','Prime Video','Disney+','HBO Max','Apple TV+','VRT Max','Streamz'];
-const PLAT_KEY  = {'Netflix':'netflix','Prime Video':'prime','Disney+':'disney','HBO Max':'hbo','Apple TV+':'apple','VRT Max':'vrt','Streamz':'streamz'};
-const PLAT_STYLE= {'Netflix':'background:#e50914;color:#fff','Prime Video':'background:#1a98ff;color:#fff','Disney+':'background:#113ccf;color:#fff','HBO Max':'background:#6a35d3;color:#fff','Apple TV+':'background:#4a4a4a;color:#fff','VRT Max':'background:#00a86b;color:#fff','Streamz':'background:#e040fb;color:#fff'};
+// add/search state
+let currentScore=0,selectedType='Film',selectedPlats=[],typeFilter='';
+let suggestDebounce=null,focusedSug=-1,sugItems=[];
 
-// ─── STATE ──────────────────────────────────────────────
-let currentScore = 0;
-let selectedType = 'Film';
-let selectedPlats = [];
-let typeFilter = '';
+// edit state
+let editId=null,editScore=0,editType='Film',editPlats=[];
 
-// ─── TABS ───────────────────────────────────────────────
+// ── TABS ────────────────────────────────────────────────
 function showTab(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
-  if(name==='list') renderList();
-  if(name==='stats') renderStats();
+  hideSuggestions();
+  if(name==='list')renderList();
+  if(name==='stats')renderStats();
 }
 
-// ─── PARSE INPUT ────────────────────────────────────────
-function parseInput(raw){
-  const m = raw.match(/\b(\d+)\s*\/\s*10\b/) || raw.match(/\s(\d+)$/);
-  const score = m ? Math.min(10,Math.max(1,parseInt(m[1]))) : null;
-  const title = raw.replace(/\b\d+\s*\/\s*10\b/,'').replace(/\s\d+$/,'')
-    .replace(/\b(film|serie|series|movie)\b/gi,'').replace(/,/g,'').trim();
-  return {title, score};
+// ── AUTOCOMPLETE ────────────────────────────────────────
+function onTyping(){
+  const val=document.getElementById('title-input').value.trim();
+  document.getElementById('search-btn').disabled=val.length<1;
+  clearTimeout(suggestDebounce);
+  if(val.length<2){hideSuggestions();return;}
+  suggestDebounce=setTimeout(()=>fetchSuggestions(val),350);
+}
+function onKeyDown(e){
+  const box=document.getElementById('suggestions');
+  if(box.style.display==='none'||!sugItems.length){if(e.key==='Enter'){e.preventDefault();lookup();}return;}
+  if(e.key==='ArrowDown'){e.preventDefault();moveFocus(1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();moveFocus(-1);}
+  else if(e.key==='Enter'){e.preventDefault();if(focusedSug>=0)selectSuggestion(sugItems[focusedSug]);else lookup();}
+  else if(e.key==='Escape')hideSuggestions();
+}
+function moveFocus(dir){
+  focusedSug=Math.max(-1,Math.min(sugItems.length-1,focusedSug+dir));
+  document.querySelectorAll('.suggestion-item').forEach((el,i)=>el.classList.toggle('focused',i===focusedSug));
+}
+async function fetchSuggestions(query){
+  const title=query.replace(/\b\d+\s*\/\s*10\b/,'').replace(/\s\d+$/,'').trim();
+  const box=document.getElementById('suggestions');
+  box.innerHTML='<div class="sug-loading">Zoeken…</div>';
+  box.style.display='block';
+  focusedSug=-1;
+  try{
+    const res=await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&s=${encodeURIComponent(title)}`);
+    const data=await res.json();
+    if(data.Response==='True'&&data.Search){sugItems=data.Search.slice(0,6);renderSuggestions();}
+    else{box.innerHTML='<div class="sug-none">Geen resultaten</div>';sugItems=[];}
+  }catch(e){hideSuggestions();}
+}
+function renderSuggestions(){
+  const box=document.getElementById('suggestions');
+  if(!sugItems.length){box.style.display='none';return;}
+  box.innerHTML=sugItems.map((item,i)=>{
+    const poster=item.Poster&&item.Poster!=='N/A'?`<img src="${escHtmlAttr(item.Poster)}" alt="" onerror="this.parentElement.innerHTML='🎬'"/>`:'🎬';
+    const type=item.Type==='series'?'Serie':item.Type==='movie'?'Film':'—';
+    return `<div class="suggestion-item" onclick="selectSuggestion(sugItems[${i}])">
+      <div class="sug-poster">${poster}</div>
+      <div class="sug-info">
+        <div class="sug-title">${escHtml(item.Title)}</div>
+        <div class="sug-meta"><span class="sug-type">${type}</span> &nbsp;${item.Year||''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  box.style.display='block';
+}
+function hideSuggestions(){
+  const box=document.getElementById('suggestions');
+  box.style.display='none';box.innerHTML='';sugItems=[];focusedSug=-1;
+}
+async function selectSuggestion(item){
+  hideSuggestions();
+  document.getElementById('title-input').value=item.Title;
+  document.getElementById('title-input').blur();
+  await lookupById(item.imdbID);
 }
 
-// ─── OMDB LOOKUP ────────────────────────────────────────
+// ── LOOKUP ──────────────────────────────────────────────
+function parseScore(raw){
+  const m=raw.match(/\b(\d+)\s*\/\s*10\b/)||raw.match(/\s(\d+)$/);
+  return m?Math.min(10,Math.max(1,parseInt(m[1]))):null;
+}
 async function lookup(){
-  const raw = document.getElementById('title-input').value.trim();
-  if(!raw) return;
-  const {title, score} = parseInput(raw);
-  const btn = document.getElementById('search-btn');
-  btn.disabled = true;
-
-  const pa = document.getElementById('preview-area');
-  pa.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><span>Opzoeken via OMDB…</span></div>`;
-
-  let info = null;
-  try {
-    // Search by title
-    const searchUrl = `https://www.omdbapi.com/?apikey=${OMDB_KEY}&s=${encodeURIComponent(title)}&type=`;
-    const searchRes = await fetch(searchUrl);
-    const searchData = await searchRes.json();
-
-    if(searchData.Response === 'True' && searchData.Search && searchData.Search.length > 0){
-      // Get full details for best match
-      const imdbId = searchData.Search[0].imdbID;
-      const detailUrl = `https://www.omdbapi.com/?apikey=${OMDB_KEY}&i=${imdbId}&plot=short`;
-      const detailRes = await fetch(detailUrl);
-      const d = await detailRes.json();
-
-      if(d.Response === 'True'){
-        // Parse runtime
-        let duration = null;
-        if(d.Type === 'series'){
-          const seasons = d.totalSeasons && d.totalSeasons !== 'N/A' ? `${d.totalSeasons} seizoen${d.totalSeasons>1?'en':''}` : null;
-          const runtime = d.Runtime && d.Runtime !== 'N/A' ? d.Runtime+'/afl.' : null;
-          duration = [seasons, runtime].filter(Boolean).join(' · ');
-        } else {
-          duration = d.Runtime && d.Runtime !== 'N/A' ? d.Runtime : null;
-        }
-
-        // Parse genres to Dutch
-        const genreMap = {
-          'Action':'Actie','Adventure':'Avontuur','Animation':'Animatie','Biography':'Biografie',
-          'Comedy':'Komedie','Crime':'Misdaad','Documentary':'Documentaire','Drama':'Drama',
-          'Family':'Familie','Fantasy':'Fantasy','History':'Geschiedenis','Horror':'Horror',
-          'Music':'Muziek','Musical':'Musical','Mystery':'Mystery','News':'Nieuws',
-          'Romance':'Romantiek','Sci-Fi':'Sci-Fi','Short':'Korte film','Sport':'Sport',
-          'Thriller':'Thriller','War':'Oorlog','Western':'Western'
-        };
-        const genres = (d.Genre||'').split(',').map(g=>{
-          const trimmed = g.trim();
-          return genreMap[trimmed] || trimmed;
-        }).filter(g=>g&&g!=='N/A');
-
-        const imdbRating = d.imdbRating && d.imdbRating!=='N/A' ? parseFloat(d.imdbRating) : null;
-        const year = d.Year && d.Year!=='N/A' ? parseInt(d.Year) : null;
-        const poster = d.Poster && d.Poster!=='N/A' ? d.Poster : null;
-
-        info = {
-          name: d.Title,
-          type: d.Type==='series' ? 'Serie' : 'Film',
-          genres,
-          imdb: imdbRating,
-          year,
-          duration,
-          poster,
-          imdbId
-        };
-      }
-    }
-  } catch(e){ console.error(e); }
-
-  btn.disabled = false;
-
-  if(!info){
-    pa.innerHTML = `<div class="hint-card" style="color:var(--red)">Titel niet gevonden. Probeer de exacte Engelstalige naam.</div>`;
-    showForm({name:title, type:'Film', genres:[], imdb:null, year:null, duration:null, poster:null}, score);
-    return;
-  }
-
-  showForm(info, score);
+  const raw=document.getElementById('title-input').value.trim();
+  if(!raw)return;
+  hideSuggestions();
+  const score=parseScore(raw);
+  const title=raw.replace(/\b\d+\s*\/\s*10\b/,'').replace(/\s\d+$/,'').replace(/\b(film|serie|series|movie)\b/gi,'').replace(/,/g,'').trim();
+  document.getElementById('search-btn').disabled=true;
+  showLoading();
+  try{
+    const res=await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&s=${encodeURIComponent(title)}`);
+    const data=await res.json();
+    if(data.Response==='True'&&data.Search&&data.Search.length>0){
+      await lookupById(data.Search[0].imdbID,score);
+    }else{showNotFound();showForm({name:title,type:'Film',genres:[],imdb:null,year:null,duration:null,poster:null},score);}
+  }catch(e){showNotFound();showForm({name:title,type:'Film',genres:[],imdb:null,year:null,duration:null,poster:null},score);}
+  document.getElementById('search-btn').disabled=false;
 }
+async function lookupById(imdbId,overrideScore){
+  showLoading();
+  document.getElementById('search-btn').disabled=true;
+  const raw=document.getElementById('title-input').value.trim();
+  const score=overrideScore!==undefined?overrideScore:parseScore(raw);
+  try{
+    const res=await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&i=${imdbId}&plot=short`);
+    const d=await res.json();
+    if(d.Response==='True'){
+      let duration=null;
+      if(d.Type==='series'){
+        const seasons=d.totalSeasons&&d.totalSeasons!=='N/A'?`${d.totalSeasons} seizoen${parseInt(d.totalSeasons)>1?'en':''}`:null;
+        const runtime=d.Runtime&&d.Runtime!=='N/A'?d.Runtime+'/afl.':null;
+        duration=[seasons,runtime].filter(Boolean).join(' · ');
+      }else{duration=d.Runtime&&d.Runtime!=='N/A'?d.Runtime:null;}
+      const genres=(d.Genre||'').split(',').map(g=>{const t=g.trim();return GENRE_MAP[t]||t;}).filter(g=>g&&g!=='N/A');
+      showForm({name:d.Title,type:d.Type==='series'?'Serie':'Film',genres,imdb:d.imdbRating&&d.imdbRating!=='N/A'?parseFloat(d.imdbRating):null,year:d.Year&&d.Year!=='N/A'?parseInt(d.Year):null,duration,poster:d.Poster&&d.Poster!=='N/A'?d.Poster:null},score);
+    }else showNotFound();
+  }catch(e){showNotFound();}
+  document.getElementById('search-btn').disabled=false;
+}
+function showLoading(){document.getElementById('preview-area').innerHTML=`<div class="loading-wrap"><div class="spinner"></div><span>Opzoeken…</span></div>`;}
+function showNotFound(){document.getElementById('preview-area').innerHTML=`<div class="hint-card" style="color:var(--red)">Niet gevonden. Probeer een andere spelling of kies een suggestie.</div>`;}
 
-// ─── FORM ───────────────────────────────────────────────
-function showForm(info, overrideScore){
-  selectedType = info.type || 'Film';
-  selectedPlats = [];
-  currentScore = (overrideScore && overrideScore>=1 && overrideScore<=10) ? overrideScore : 0;
-
-  const pa = document.getElementById('preview-area');
-  const posterHtml = info.poster
-    ? `<img src="${escHtmlAttr(info.poster)}" alt="poster" onerror="this.parentElement.innerHTML='🎬'"/>`
-    : '🎬';
-
-  pa.innerHTML = `
+// ── FORM (add) ──────────────────────────────────────────
+function showForm(info,overrideScore){
+  selectedType=info.type||'Film';selectedPlats=[];
+  currentScore=(overrideScore&&overrideScore>=1&&overrideScore<=10)?overrideScore:0;
+  const posterHtml=info.poster?`<img src="${escHtmlAttr(info.poster)}" alt="poster" onerror="this.parentElement.innerHTML='🎬'"/>`:'🎬';
+  document.getElementById('preview-area').innerHTML=`
 <div class="result-card">
   <div class="rc-header">
     <div class="rc-poster">${posterHtml}</div>
@@ -430,34 +461,16 @@ function showForm(info, overrideScore){
     </div>
   </div>
   <div class="rc-body">
-    <div>
-      <div class="field-label">Titel</div>
-      <input class="field-input" id="f-name" value="${escHtmlAttr(info.name||'')}"/>
-    </div>
+    <div><div class="field-label">Titel</div><input class="field-input" id="f-name" value="${escHtmlAttr(info.name||'')}"/></div>
     <div class="field-row">
-      <div>
-        <div class="field-label">Jaar</div>
-        <input class="field-input" id="f-year" value="${info.year||''}" placeholder="—"/>
-      </div>
-      <div>
-        <div class="field-label">Duur</div>
-        <input class="field-input" id="f-dur" value="${escHtmlAttr(info.duration||'')}" placeholder="—"/>
-      </div>
+      <div><div class="field-label">Jaar</div><input class="field-input" id="f-year" value="${info.year||''}" placeholder="—"/></div>
+      <div><div class="field-label">Duur</div><input class="field-input" id="f-dur" value="${escHtmlAttr(info.duration||'')}" placeholder="—"/></div>
     </div>
-    <div>
-      <div class="field-label">Genres</div>
-      <input class="field-input" id="f-genres" value="${escHtmlAttr((info.genres||[]).join(', '))}" placeholder="Drama, Thriller…"/>
-    </div>
-    <div>
-      <div class="field-label">IMDB-score</div>
-      <input class="field-input" id="f-imdb" value="${info.imdb||''}" placeholder="—" style="max-width:90px"/>
-    </div>
+    <div><div class="field-label">Genres</div><input class="field-input" id="f-genres" value="${escHtmlAttr((info.genres||[]).join(', '))}" placeholder="Drama, Thriller…"/></div>
+    <div><div class="field-label">IMDB-score</div><input class="field-input" id="f-imdb" value="${info.imdb||''}" placeholder="—" style="max-width:90px"/></div>
     <div>
       <div class="field-label">Mijn score (/10)</div>
-      <div class="stars-row">
-        <div class="stars" id="stars-row"></div>
-        <div class="score-label" id="score-lbl">${currentScore||'—'}</div>
-      </div>
+      <div class="stars-row"><div class="stars" id="stars-row"></div><div class="score-label" id="score-lbl">${currentScore||'—'}</div></div>
     </div>
     <div>
       <div class="field-label">Beschikbaar in 🇧🇪 <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(vink zelf aan)</span></div>
@@ -467,204 +480,200 @@ function showForm(info, overrideScore){
     <div class="cancel-btn" onclick="resetForm()">Annuleer</div>
   </div>
 </div>`;
-
-  renderStars();
-  renderPlatBtns();
+  renderStars();renderPlatBtns();
+}
+function setType(t,el){selectedType=t;document.querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');}
+function renderStars(){
+  const c=document.getElementById('stars-row');if(!c)return;c.innerHTML='';
+  for(let i=1;i<=10;i++){
+    const s=document.createElement('div');s.className='star'+(i<=currentScore?' lit':'');s.textContent='★';
+    s.onclick=()=>{currentScore=i;renderStars();document.getElementById('score-lbl').textContent=i;};
+    s.onmouseenter=()=>{document.querySelectorAll('#stars-row .star').forEach((x,j)=>x.classList.toggle('lit',j<i));};
+    s.onmouseleave=()=>renderStars();c.appendChild(s);
+  }
+}
+function renderPlatBtns(){
+  const g=document.getElementById('plat-grid');if(!g)return;g.innerHTML='';
+  PLATFORMS.forEach(p=>{
+    const d=document.createElement('div');const k=PLAT_KEY[p];
+    d.className='plat-btn'+(selectedPlats.includes(p)?' sel-'+k:'');d.textContent=p;
+    d.onclick=()=>{selectedPlats=selectedPlats.includes(p)?selectedPlats.filter(x=>x!==p):[...selectedPlats,p];renderPlatBtns();};
+    g.appendChild(d);
+  });
+}
+function saveEntry(){
+  const name=(document.getElementById('f-name').value||'').trim();if(!name)return;
+  const item={id:Date.now(),name,type:selectedType,
+    genres:(document.getElementById('f-genres').value||'').split(',').map(g=>g.trim()).filter(Boolean),
+    imdb:parseFloat(document.getElementById('f-imdb').value)||null,
+    year:parseInt(document.getElementById('f-year').value)||null,
+    duration:(document.getElementById('f-dur').value||'').trim()||null,
+    userScore:currentScore||null,platforms:[...selectedPlats],addedAt:Date.now()};
+  watchlist.unshift(item);save();updateBadge();updatePlatFilter();
+  document.getElementById('title-input').value='';
+  document.getElementById('search-btn').disabled=true;
+  document.getElementById('preview-area').innerHTML=`<div class="hint-card" style="color:var(--accent)">✓ <strong>${escHtml(name)}</strong> toegevoegd!</div>`;
+  setTimeout(resetForm,2000);
+}
+function resetForm(){
+  document.getElementById('preview-area').innerHTML=`
+<div class="hint-card">
+  <strong>Begin gewoon te typen</strong> — na 2 letters verschijnen suggesties:
+  <div class="hint-bullets">
+    <span>Kies een suggestie uit de lijst</span>
+    <span>Of druk op Zoek voor het beste resultaat</span>
+    <span>Geef ook je score mee, bv. <kbd>Ted Lasso 9/10</kbd></span>
+  </div>
+  <br><span style="font-size:12px;color:var(--muted)">Gebruik bij voorkeur de Engelstalige titel.</span>
+</div>`;
 }
 
-function setType(t, el){
-  selectedType = t;
-  document.querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));
+// ── EDIT SHEET ───────────────────────────────────────────
+function openEdit(id){
+  const item=watchlist.find(i=>i.id===id);if(!item)return;
+  editId=id;editScore=item.userScore||0;editType=item.type||'Film';editPlats=[...(item.platforms||[])];
+
+  document.getElementById('e-name').value=item.name||'';
+  document.getElementById('e-year').value=item.year||'';
+  document.getElementById('e-dur').value=item.duration||'';
+  document.getElementById('e-genres').value=(item.genres||[]).join(', ');
+  document.getElementById('e-imdb').value=item.imdb||'';
+
+  // type pills
+  document.getElementById('e-type-film').classList.toggle('active',editType==='Film');
+  document.getElementById('e-type-serie').classList.toggle('active',editType==='Serie');
+
+  renderEditStars();
+  renderEditPlats();
+
+  const sheet=document.getElementById('edit-sheet');
+  sheet.style.display='block';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>document.getElementById('edit-panel').classList.add('open')));
+}
+
+function closeEdit(){
+  document.getElementById('edit-panel').classList.remove('open');
+  setTimeout(()=>document.getElementById('edit-sheet').style.display='none',300);
+}
+
+function setEditType(t,el){
+  editType=t;
+  document.querySelectorAll('#edit-panel .type-pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
 }
 
-function renderStars(){
-  const c = document.getElementById('stars-row');
-  if(!c) return;
-  c.innerHTML = '';
+function renderEditStars(){
+  const c=document.getElementById('e-stars');if(!c)return;c.innerHTML='';
   for(let i=1;i<=10;i++){
-    const s = document.createElement('div');
-    s.className = 'star'+(i<=currentScore?' lit':'');
-    s.textContent = '★';
-    s.onclick = ()=>{ currentScore=i; renderStars(); document.getElementById('score-lbl').textContent=i; };
-    s.onmouseenter = ()=>{ document.querySelectorAll('#stars-row .star').forEach((x,j)=>x.classList.toggle('lit',j<i)); };
-    s.onmouseleave = ()=>renderStars();
-    c.appendChild(s);
+    const s=document.createElement('div');s.className='star'+(i<=editScore?' lit':'');s.textContent='★';
+    s.onclick=()=>{editScore=i;renderEditStars();document.getElementById('e-score-lbl').textContent=i;};
+    s.onmouseenter=()=>{document.querySelectorAll('#e-stars .star').forEach((x,j)=>x.classList.toggle('lit',j<i));};
+    s.onmouseleave=()=>renderEditStars();c.appendChild(s);
   }
+  document.getElementById('e-score-lbl').textContent=editScore||'—';
 }
 
-function renderPlatBtns(){
-  const g = document.getElementById('plat-grid');
-  if(!g) return;
-  g.innerHTML = '';
+function renderEditPlats(){
+  const g=document.getElementById('e-plat-grid');if(!g)return;g.innerHTML='';
   PLATFORMS.forEach(p=>{
-    const d = document.createElement('div');
-    const k = PLAT_KEY[p];
-    d.className = 'plat-btn'+(selectedPlats.includes(p)?' sel-'+k:'');
-    d.textContent = p;
-    d.onclick = ()=>{
-      selectedPlats = selectedPlats.includes(p) ? selectedPlats.filter(x=>x!==p) : [...selectedPlats,p];
-      renderPlatBtns();
-    };
+    const d=document.createElement('div');const k=PLAT_KEY[p];
+    d.className='plat-btn'+(editPlats.includes(p)?' sel-'+k:'');d.textContent=p;
+    d.onclick=()=>{editPlats=editPlats.includes(p)?editPlats.filter(x=>x!==p):[...editPlats,p];renderEditPlats();};
     g.appendChild(d);
   });
 }
 
-function saveEntry(){
-  const name = (document.getElementById('f-name').value||'').trim();
-  if(!name) return;
-  const item = {
-    id: Date.now(),
-    name,
-    type: selectedType,
-    genres: (document.getElementById('f-genres').value||'').split(',').map(g=>g.trim()).filter(Boolean),
-    imdb: parseFloat(document.getElementById('f-imdb').value)||null,
-    year: parseInt(document.getElementById('f-year').value)||null,
-    duration: (document.getElementById('f-dur').value||'').trim()||null,
-    userScore: currentScore||null,
-    platforms: [...selectedPlats],
-    addedAt: Date.now()
+function saveEdit(){
+  const idx=watchlist.findIndex(i=>i.id===editId);if(idx<0)return;
+  watchlist[idx]={
+    ...watchlist[idx],
+    name:(document.getElementById('e-name').value||'').trim()||watchlist[idx].name,
+    type:editType,
+    year:parseInt(document.getElementById('e-year').value)||null,
+    duration:(document.getElementById('e-dur').value||'').trim()||null,
+    genres:(document.getElementById('e-genres').value||'').split(',').map(g=>g.trim()).filter(Boolean),
+    imdb:parseFloat(document.getElementById('e-imdb').value)||null,
+    userScore:editScore||null,
+    platforms:[...editPlats]
   };
-  watchlist.unshift(item);
-  save();
-  updateBadge();
-  updatePlatFilter();
-  resetForm();
-  document.getElementById('title-input').value = '';
-
-  const pa = document.getElementById('preview-area');
-  pa.innerHTML = `<div class="hint-card" style="color:var(--accent)">✓ <strong>${escHtml(name)}</strong> toegevoegd aan je lijst!</div>`;
-  setTimeout(resetForm, 2000);
+  save();updatePlatFilter();renderList();renderStats();
+  closeEdit();
 }
 
-function resetForm(){
-  document.getElementById('preview-area').innerHTML = `
-<div class="hint-card">
-  <strong>Typ een film of serie</strong> en ik zoek automatisch op:
-  <div class="hint-bullets">
-    <span>Officiële titel & poster</span>
-    <span>IMDB-score & genres</span>
-    <span>Duur of aantal seizoenen</span>
-  </div>
-  <br>Geef ook je score mee, bv. <kbd>The Bear 9/10</kbd><br>
-  <span style="font-size:12px;color:var(--muted);margin-top:6px;display:block">Streamingplatforms vink je zelf aan.</span>
-</div>`;
-}
-
-// ─── LIST ───────────────────────────────────────────────
-function setTypeFilter(t){
-  typeFilter = t;
-  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.toggle('active',c.dataset.type===t));
-  renderList();
-}
-
+// ── LIST ────────────────────────────────────────────────
+function setTypeFilter(t){typeFilter=t;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.toggle('active',c.dataset.type===t));renderList();}
 function updatePlatFilter(){
-  const all = [...new Set(watchlist.flatMap(i=>i.platforms||[]))].sort();
-  const sel = document.getElementById('f-plat');
-  const v = sel.value;
-  sel.innerHTML = '<option value="">Alle platforms</option>'+all.map(p=>`<option>${escHtml(p)}</option>`).join('');
-  sel.value = all.includes(v)?v:'';
+  const all=[...new Set(watchlist.flatMap(i=>i.platforms||[]))].sort();
+  const sel=document.getElementById('f-plat');const v=sel.value;
+  sel.innerHTML='<option value="">Alle platforms</option>'+all.map(p=>`<option>${escHtml(p)}</option>`).join('');
+  sel.value=all.includes(v)?v:'';
 }
-
 function renderList(){
-  const pf = document.getElementById('f-plat').value;
-  const sb = document.getElementById('f-sort').value;
-
-  let items = watchlist.filter(i=>{
-    if(typeFilter && i.type!==typeFilter) return false;
-    if(pf && !(i.platforms||[]).includes(pf)) return false;
-    return true;
-  });
-
-  if(sb==='score') items.sort((a,b)=>(b.userScore||0)-(a.userScore||0));
-  else if(sb==='imdb') items.sort((a,b)=>(b.imdb||0)-(a.imdb||0));
-  else if(sb==='az') items.sort((a,b)=>a.name.localeCompare(b.name));
+  const pf=document.getElementById('f-plat').value,sb=document.getElementById('f-sort').value;
+  let items=watchlist.filter(i=>{if(typeFilter&&i.type!==typeFilter)return false;if(pf&&!(i.platforms||[]).includes(pf))return false;return true;});
+  if(sb==='score')items.sort((a,b)=>(b.userScore||0)-(a.userScore||0));
+  else if(sb==='imdb')items.sort((a,b)=>(b.imdb||0)-(a.imdb||0));
+  else if(sb==='az')items.sort((a,b)=>a.name.localeCompare(b.name));
   else items.sort((a,b)=>b.addedAt-a.addedAt);
-
-  const el = document.getElementById('movie-list');
-  if(!items.length){
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🎬</div><div class="empty-title">${watchlist.length?'Geen resultaten':'Lijst is leeg'}</div><div style="font-size:13px;color:var(--muted)">${watchlist.length?'Pas de filters aan.':'Zoek een titel via het zoektabje!'}</div></div>`;
-    return;
-  }
-
-  el.innerHTML = items.map(i=>{
-    const plats = (i.platforms||[]).map(p=>`<span class="mplat" style="${PLAT_STYLE[p]||'background:var(--surface3);color:var(--muted2)'}">${escHtml(p)}</span>`).join('');
-    const genres = (i.genres||[]).slice(0,3).map(g=>`<span class="genre-tag">${escHtml(g)}</span>`).join('');
+  const el=document.getElementById('movie-list');
+  if(!items.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🎬</div><div class="empty-title">${watchlist.length?'Geen resultaten':'Lijst is leeg'}</div><div style="font-size:13px;color:var(--muted)">${watchlist.length?'Pas de filters aan.':'Zoek een titel via het zoektabje!'}</div></div>`;return;}
+  el.innerHTML=items.map(i=>{
+    const plats=(i.platforms||[]).map(p=>`<span class="mplat" style="${PLAT_STYLE[p]||'background:var(--surface3);color:var(--muted2)'}">${escHtml(p)}</span>`).join('');
+    const genres=(i.genres||[]).slice(0,3).map(g=>`<span class="genre-tag">${escHtml(g)}</span>`).join('');
     return `<div class="mcard">
       <div class="mcard-poster">🎬</div>
       <div class="mcard-body">
         <div class="mcard-title">${escHtml(i.name)}</div>
-        <div class="mcard-sub">
-          <span class="type-dot">${escHtml(i.type)}</span>
-          ${i.year?`<span>${i.year}</span>`:''}
-          ${i.duration?`<span>${escHtml(i.duration)}</span>`:''}
-        </div>
+        <div class="mcard-sub"><span class="type-dot">${escHtml(i.type)}</span>${i.year?`<span>${i.year}</span>`:''}${i.duration?`<span>${escHtml(i.duration)}</span>`:''}</div>
         ${genres?`<div class="mcard-genres">${genres}</div>`:''}
         ${plats?`<div class="mcard-plats">${plats}</div>`:''}
       </div>
       <div class="mcard-right">
         ${i.imdb?`<div class="mcard-imdb">⭐ ${i.imdb}</div>`:''}
         ${i.userScore?`<div class="mcard-score">♥ ${i.userScore}/10</div>`:''}
-        <button class="mcard-del" onclick="deleteItem(${i.id})" aria-label="Verwijder">✕</button>
+        <div class="mcard-actions">
+          <button class="mcard-edit" onclick="openEdit(${i.id})" title="Wijzigen">✏️</button>
+          <button class="mcard-del" onclick="deleteItem(${i.id})" title="Verwijderen">✕</button>
+        </div>
       </div>
     </div>`;
   }).join('');
 }
+function deleteItem(id){watchlist=watchlist.filter(i=>i.id!==id);save();updateBadge();updatePlatFilter();renderList();renderStats();}
 
-function deleteItem(id){
-  watchlist = watchlist.filter(i=>i.id!==id);
-  save();
-  updateBadge();
-  updatePlatFilter();
-  renderList();
-  renderStats();
-}
-
-// ─── STATS ──────────────────────────────────────────────
+// ── STATS ────────────────────────────────────────────────
 function renderStats(){
-  document.getElementById('st-total').textContent = watchlist.length;
-  document.getElementById('st-films').textContent = watchlist.filter(i=>i.type==='Film').length;
-  document.getElementById('st-series').textContent = watchlist.filter(i=>i.type==='Serie').length;
-  const ii = watchlist.filter(i=>i.imdb);
-  document.getElementById('st-imdb').textContent = ii.length?(ii.reduce((s,i)=>s+i.imdb,0)/ii.length).toFixed(1):'—';
-
-  const top5 = [...watchlist].filter(i=>i.userScore).sort((a,b)=>b.userScore-a.userScore).slice(0,5);
-  document.getElementById('st-top-section').style.display = top5.length?'':'none';
-  document.getElementById('st-top').innerHTML = top5.map(i=>`<div class="top-item"><span class="top-item-title">${escHtml(i.name)}</span><span class="top-item-score">♥ ${i.userScore}/10</span></div>`).join('');
-
-  const platCounts = {};
+  document.getElementById('st-total').textContent=watchlist.length;
+  document.getElementById('st-films').textContent=watchlist.filter(i=>i.type==='Film').length;
+  document.getElementById('st-series').textContent=watchlist.filter(i=>i.type==='Serie').length;
+  const ii=watchlist.filter(i=>i.imdb);
+  document.getElementById('st-imdb').textContent=ii.length?(ii.reduce((s,i)=>s+i.imdb,0)/ii.length).toFixed(1):'—';
+  const top5=[...watchlist].filter(i=>i.userScore).sort((a,b)=>b.userScore-a.userScore).slice(0,5);
+  document.getElementById('st-top-section').style.display=top5.length?'':'none';
+  document.getElementById('st-top').innerHTML=top5.map(i=>`<div class="top-item"><span class="top-item-title">${escHtml(i.name)}</span><span class="top-item-score">♥ ${i.userScore}/10</span></div>`).join('');
+  const platCounts={};
   watchlist.forEach(i=>(i.platforms||[]).forEach(p=>{platCounts[p]=(platCounts[p]||0)+1;}));
-  const platEntries = Object.entries(platCounts).sort((a,b)=>b[1]-a[1]);
-  const maxCount = platEntries[0]?.[1]||1;
-  document.getElementById('st-plat-section').style.display = platEntries.length?'':'none';
-  document.getElementById('st-plats').innerHTML = platEntries.map(([p,c])=>`
-    <div class="plat-bar-row">
-      <div class="plat-bar-name">${escHtml(p)}</div>
-      <div class="plat-bar-track"><div class="plat-bar-fill" style="width:${Math.round(c/maxCount*100)}%"></div></div>
-      <div class="plat-bar-count">${c}</div>
-    </div>`).join('');
+  const platEntries=Object.entries(platCounts).sort((a,b)=>b[1]-a[1]);
+  const maxCount=platEntries[0]?.[1]||1;
+  document.getElementById('st-plat-section').style.display=platEntries.length?'':'none';
+  document.getElementById('st-plats').innerHTML=platEntries.map(([p,c])=>`<div class="plat-bar-row"><div class="plat-bar-name">${escHtml(p)}</div><div class="plat-bar-track"><div class="plat-bar-fill" style="width:${Math.round(c/maxCount*100)}%"></div></div><div class="plat-bar-count">${c}</div></div>`).join('');
 }
 
-// ─── HELPERS ────────────────────────────────────────────
-function updateBadge(){
-  const b = document.getElementById('tab-badge');
-  b.style.display = watchlist.length?'':'none';
-  b.textContent = watchlist.length;
-}
-function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function escHtmlAttr(s){ return escHtml(s).replace(/'/g,'&#39;'); }
+// ── HELPERS ─────────────────────────────────────────────
+function updateBadge(){const b=document.getElementById('tab-badge');b.style.display=watchlist.length?'':'none';b.textContent=watchlist.length;}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escHtmlAttr(s){return escHtml(s).replace(/'/g,'&#39;');}
+document.addEventListener('click',e=>{if(!e.target.closest('.search-box'))hideSuggestions();});
 
-// ─── SERVICE WORKER ─────────────────────────────────────
+// ── SERVICE WORKER ───────────────────────────────────────
 if('serviceWorker' in navigator){
-  const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>{if(e.request.url.includes('omdbapi.com')||e.request.url.includes('fonts.googleapis.com'))return;e.respondWith(caches.open('wl-v1').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(res=>{c.put(e.request,res.clone());return res;}))));});`;
+  const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>{if(e.request.url.includes('omdbapi.com')||e.request.url.includes('fonts.googleapis'))return;e.respondWith(caches.open('wl-v1').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(res=>{c.put(e.request,res.clone());return res;}))));});`;
   const blob=new Blob([sw],{type:'text/javascript'});
   navigator.serviceWorker.register(URL.createObjectURL(blob));
 }
 
-// ─── INIT ───────────────────────────────────────────────
-updateBadge();
-updatePlatFilter();
-renderList();
+// ── INIT ────────────────────────────────────────────────
+updateBadge();updatePlatFilter();renderList();
 </script>
 </body>
 </html>
